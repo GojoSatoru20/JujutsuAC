@@ -84,12 +84,14 @@ st.markdown("""
         background: rgba(0, 255, 255, 0.1) !important;
         border-color: rgba(0, 255, 255, 0.3) !important;
         margin-left: 2em !important;
+        animation-delay: calc(var(--index, 0) * 0.8s);
     }
     
     .stChatMessage[data-testid="assistant-message"] {
         background: rgba(255, 0, 255, 0.1) !important;
         border-color: rgba(255, 0, 255, 0.3) !important;
         margin-right: 2em !important;
+        animation-delay: calc(var(--index, 0) * 0.8s);
     }
     
     .stChatInputContainer {
@@ -215,11 +217,11 @@ st.markdown("""
     @keyframes messageAppear {
         0% {
             opacity: 0;
-            transform: translateX(-20px);
+            transform: translateY(20px);
         }
         100% {
             opacity: 1;
-            transform: translateX(0);
+            transform: translateY(0);
         }
     }
     
@@ -261,18 +263,18 @@ st.markdown("""
     /* Базовые стили для всех сообщений */
     .stChatMessage {
         opacity: 0;
+        animation: messageAppear 0.5s ease forwards;
+        animation-play-state: paused;
     }
 
-    /* Стили для первого сообщения - полностью статичные */
+    /* Мгновенное появление первого сообщения */
     .stChatMessage:first-of-type {
         opacity: 1 !important;
         animation: none !important;
-        transform: none !important;
-        transition: none !important;
     }
 
-    /* Анимация для остальных сообщений */
-    @keyframes slideIn {
+    /* Анимация появления */
+    @keyframes messageAppear {
         0% {
             opacity: 0;
             transform: translateY(20px);
@@ -283,63 +285,44 @@ st.markdown("""
         }
     }
 
-    /* Стили для сообщений пользователя (кроме первого) */
-    [data-testid="user-message"]:not(:first-of-type) {
-        animation: slideIn 0.5s ease forwards;
+    /* Стили для сообщений пользователя */
+    [data-testid="user-message"] {
         background: rgba(0, 255, 255, 0.1) !important;
         border-color: rgba(0, 255, 255, 0.3) !important;
         margin-left: 2em !important;
+        animation-delay: calc(var(--index, 0) * 0.8s);
+        animation-play-state: running;
     }
 
-    /* Стили для сообщений ассистента (кроме первого) */
-    [data-testid="assistant-message"]:not(:first-of-type) {
-        animation: slideIn 0.5s ease forwards;
+    /* Стили для сообщений ассистента */
+    [data-testid="assistant-message"] {
         background: rgba(255, 0, 255, 0.1) !important;
         border-color: rgba(255, 0, 255, 0.3) !important;
         margin-right: 2em !important;
+        animation-delay: calc(var(--index, 0) * 0.8s);
+        animation-play-state: running;
     }
 
-    /* Задержки для последующих сообщений */
-    .stChatMessage:nth-child(2) { animation-delay: 1s; }
-    .stChatMessage:nth-child(3) { animation-delay: 1.8s; }
-    .stChatMessage:nth-child(4) { animation-delay: 2.6s; }
-    .stChatMessage:nth-child(5) { animation-delay: 3.4s; }
-    .stChatMessage:nth-child(n+6) { animation-delay: 4.2s; }
-
-    /* Статичные стили для первого сообщения */
-    .stChatMessage:first-of-type[data-testid="user-message"] {
-        background: rgba(0, 255, 255, 0.1) !important;
-        border-color: rgba(0, 255, 255, 0.3) !important;
-        margin-left: 2em !important;
-    }
-
-    .stChatMessage:first-of-type[data-testid="assistant-message"] {
-        background: rgba(255, 0, 255, 0.1) !important;
-        border-color: rgba(255, 0, 255, 0.3) !important;
-        margin-right: 2em !important;
-    }
-
-    /* Эффект печати для ассистента */
-    .typing-effect {
-        opacity: 0;
-        animation: fadeIn 0.5s ease forwards;
-        animation-delay: 1.2s;
-    }
-
-    @keyframes fadeIn {
-        0% {
-            opacity: 0;
-        }
-        100% {
-            opacity: 1;
-        }
-    }
-
-    /* Hover эффекты для сообщений */
-    [data-testid="user-message"]:hover,
-    [data-testid="assistant-message"]:hover {
+    /* Hover эффекты */
+    .stChatMessage:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 15px rgba(0, 255, 255, 0.2) !important;
+        transition: all 0.3s ease;
+    }
+
+    /* Динамические задержки для анимации */
+    .stChatMessage:nth-child(1) { --index: 0; animation-play-state: running; }
+    .stChatMessage:nth-child(2) { --index: 1; animation-play-state: running; }
+    .stChatMessage:nth-child(3) { --index: 2; animation-play-state: running; }
+    .stChatMessage:nth-child(4) { --index: 3; animation-play-state: running; }
+    .stChatMessage:nth-child(5) { --index: 4; animation-play-state: running; }
+    .stChatMessage:nth-child(n+6) { --index: 5; animation-play-state: running; }
+
+    /* Сброс анимации при добавлении новых сообщений */
+    .stChatMessage:not(:first-of-type) {
+        animation: none;
+        animation: messageAppear 0.5s ease forwards;
+        animation-play-state: running;
     }
 
     /* RGB анимации */
