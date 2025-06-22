@@ -53,8 +53,8 @@ def save_config(config):
 # --- Инициализация приложения ---
 
 st.set_page_config(page_title="OpenRouter Chat", layout="wide")
-st.title("💬 Локальный Чат с OpenRouter")
-st.caption("Интерфейс для взаимодействия с моделями через API OpenRouter.ai")
+st.title("💬 Чат с JujutsuAI")
+st.caption("Интерфейс для взаимодействия с моделями через API JujutsuAI.ai")
 
 # Загрузка конфигурации
 config = load_config()
