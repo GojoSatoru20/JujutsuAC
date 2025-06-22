@@ -1,0 +1,1 @@
+python -m streamlit run llama.py --server.port 8502
