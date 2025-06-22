@@ -4,7 +4,7 @@ import json
 import os
 
 # --- Константы и Конфигурация ---
-CONFIG_FILE = "jujutsuai_config.json"
+CONFIG_FILE = "openrouter_config.json"
 DEFAULT_MODELS = [
     "deepseek/deepseek-r1:free",
     "meta-llama/llama-4-maverick:free",
@@ -52,9 +52,9 @@ def save_config(config):
 
 # --- Инициализация приложения ---
 
-st.set_page_config(page_title="JujutsuAI Chat", layout="wide")
-st.title("💬 Чат с JujutsuAI")
-st.caption("Интерфейс для взаимодействия с моделями через API JujutsuAI.ai")
+st.set_page_config(page_title="OpenRouter Chat", layout="wide")
+st.title("💬 Локальный Чат с OpenRouter")
+st.caption("Интерфейс для взаимодействия с моделями через API OpenRouter.ai")
 
 # Загрузка конфигурации
 config = load_config()
@@ -81,15 +81,15 @@ if "site_name" not in st.session_state:
 
 # --- Боковая панель для настроек ---
 with st.sidebar:
-    st.header("⚙️ Настройки JujutsuAI")
+    st.header("⚙️ Настройки OpenRouter")
 
     # Ввод API ключа
     api_key_input = st.text_input(
-        "JujutsuAI API Key",
+        "OpenRouter API Key",
         type="password",
         value=st.session_state.api_key,
         key="api_key_input_widget", # Уникальный ключ для виджета
-        help="Введите ваш API ключ с JujutsuAI.ai. Ключ сохраняется локально в `jujutsuai_config.json`."
+        help="Введите ваш API ключ с OpenRouter.ai. Ключ сохраняется локально в `openrouter_config.json`."
     )
     # Сохраняем ключ, если он изменился
     if api_key_input != st.session_state.api_key:
@@ -116,7 +116,7 @@ with st.sidebar:
             options=DEFAULT_MODELS,
             index=default_model_index,
             key="model_select_widget", # Уникальный ключ для виджета
-            help="Выберите модель для общения. Список моделей на JujutsuAI: https://JujutsuAI.ai/models"
+            help="Выберите модель для общения. Список моделей на OpenRouter: https://openrouter.ai/models"
         )
         # Сохраняем модель, если она изменилась
         if selected_model_input != st.session_state.selected_model:
@@ -175,7 +175,7 @@ for message in st.session_state.messages:
 if prompt := st.chat_input("Ваше сообщение..."):
     # Проверка наличия API ключа и выбранной модели
     if not st.session_state.api_key:
-        st.warning("Пожалуйста, введите ваш JujutsuAI API Key в настройках (боковая панель).")
+        st.warning("Пожалуйста, введите ваш OpenRouter API Key в настройках (боковая панель).")
         st.stop()
     if not st.session_state.selected_model:
          st.warning("Пожалуйста, выберите модель в настройках (боковая панель).")
@@ -247,7 +247,7 @@ if prompt := st.chat_input("Ваше сообщение..."):
 
         # --- БЛОКИ ОБРАБОТКИ ОШИБОК API ---
         except openai.AuthenticationError:
-            error_message = "Ошибка аутентификации (401). Проверьте правильность вашего API ключа JujutsuAI."
+            error_message = "Ошибка аутентификации (401). Проверьте правильность вашего API ключа OpenRouter."
             message_placeholder.error(error_message)
             full_response = f"Ошибка: {error_message}"
         except openai.PermissionDeniedError: # Часто бывает при нехватке кредитов
@@ -255,24 +255,24 @@ if prompt := st.chat_input("Ваше сообщение..."):
              message_placeholder.error(error_message)
              full_response = f"Ошибка: {error_message}"
         except openai.NotFoundError:
-            error_message = f"Ошибка: Модель '{st.session_state.selected_model}' не найдена (404) на JujutsuAI или недоступна."
+            error_message = f"Ошибка: Модель '{st.session_state.selected_model}' не найдена (404) на OpenRouter или недоступна."
             message_placeholder.error(error_message)
             full_response = f"Ошибка: {error_message}"
         except openai.RateLimitError:
-             error_message = "Ошибка: Превышен лимит запросов (429) на JujutsuAI. Попробуйте позже или проверьте лимиты вашего аккаунта."
+             error_message = "Ошибка: Превышен лимит запросов (429) на OpenRouter. Попробуйте позже или проверьте лимиты вашего аккаунта."
              message_placeholder.error(error_message)
              full_response = f"Ошибка: {error_message}"
         except openai.APIConnectionError as e:
-            error_message = f"Ошибка подключения к JujutsuAI: {e}. Проверьте ваше интернет-соединение и доступность API."
+            error_message = f"Ошибка подключения к OpenRouter: {e}. Проверьте ваше интернет-соединение и доступность API."
             message_placeholder.error(error_message)
             full_response = f"Ошибка: {error_message}"
         except openai.APIStatusError as e: # Ловим другие ошибки HTTP (5xx, 4xx)
-            error_message = f"Ошибка API JujutsuAI (HTTP {e.status_code}): {e.message}"
+            error_message = f"Ошибка API OpenRouter (HTTP {e.status_code}): {e.message}"
             st.error(f"Полный ответ ошибки API: {e.response.text}") # Показываем тело ответа
             message_placeholder.error(error_message)
             full_response = f"Ошибка: {error_message}"
         except openai.APIError as e: # Общая ошибка OpenAI/OpenRouter
-            error_message = f"Произошла общая ошибка API JujutsuAI: {e}"
+            error_message = f"Произошла общая ошибка API OpenRouter: {e}"
             message_placeholder.error(error_message)
             full_response = f"Ошибка: {error_message}"
         except Exception as e:
