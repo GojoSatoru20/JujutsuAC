@@ -68,7 +68,7 @@ default_model = config.get("last_selected_model", DEFAULT_MODELS[0] if DEFAULT_M
 if default_model not in DEFAULT_MODELS and DEFAULT_MODELS: # Если сохраненной нет в текущем списке
     default_model = DEFAULT_MODELS[0]
 elif not DEFAULT_MODELS: # Если список моделей пуст
-     default_model = ""
+     default_model = "google/gemma-3-27b-it:free"
 
 if "selected_model" not in st.session_state:
     st.session_state.selected_model = default_model
