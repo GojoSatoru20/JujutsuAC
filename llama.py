@@ -310,7 +310,108 @@ st.markdown("""
         font-size: 1.2em !important;
         box-shadow: 0 0 15px rgba(0, 247, 255, 0.1) !important;
     }
+
+    /* Clear API key button */
+    .clear-api-button {
+        background: transparent !important;
+        border: none !important;
+        color: #00F7FF !important;
+        font-family: 'Orbitron', sans-serif !important;
+        font-size: 0.7em !important;
+        padding: 2px 8px !important;
+        margin: 0 !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        opacity: 0.7 !important;
+        border-radius: 4px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1px !important;
+    }
+
+    .clear-api-button:hover {
+        opacity: 1 !important;
+        background: rgba(0, 247, 255, 0.1) !important;
+    }
+
+    /* API key label container */
+    .api-key-container {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        margin-bottom: 4px !important;
+    }
+
+    .api-key-container label {
+        color: #00F7FF !important;
+        font-family: 'Orbitron', sans-serif !important;
+        font-size: 0.9em !important;
+        margin: 0 !important;
+    }
+
+    /* API key clear button */
+    .api-key-clear {
+        position: absolute !important;
+        right: 45px !important;  /* Располагаем перед иконкой показа пароля */
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        width: 16px !important;
+        height: 16px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 50% !important;
+        border: 1px solid rgba(0, 247, 255, 0.2) !important;
+        background: rgba(17, 23, 41, 0.6) !important;
+        color: #00F7FF !important;
+        font-size: 10px !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        opacity: 0.7 !important;
+        z-index: 100 !important;
+    }
+
+    .api-key-clear:hover {
+        opacity: 1 !important;
+        border-color: rgba(0, 247, 255, 0.4) !important;
+        background: rgba(0, 247, 255, 0.1) !important;
+    }
+
+    /* Контейнер для input чтобы позиционировать кнопку */
+    .api-key-input-container {
+        position: relative !important;
+    }
+
+
 </style>
+
+<script>
+    function setupAPIClear() {
+        const inputs = document.querySelectorAll('input[type="password"]');
+        inputs.forEach(input => {
+            const container = document.createElement('div');
+            container.className = 'api-key-input-container';
+            input.parentNode.insertBefore(container, input);
+            container.appendChild(input);
+            
+            const clearBtn = document.createElement('div');
+            clearBtn.className = 'api-key-clear';
+            clearBtn.innerHTML = '×';
+            clearBtn.onclick = () => {
+                input.value = '';
+                input.dispatchEvent(new Event('input'));
+            };
+            container.appendChild(clearBtn);
+        });
+    }
+    
+    // Запускаем после загрузки DOM
+    document.addEventListener('DOMContentLoaded', setupAPIClear);
+    
+    // Запускаем при изменении Streamlit
+    new MutationObserver(() => {
+        setupAPIClear();
+    }).observe(document.body, { subtree: true, childList: true });
+</script>
 """, unsafe_allow_html=True)
 
 # --- Заголовок и статус ---
@@ -349,8 +450,13 @@ if "messages" not in st.session_state:
 config = load_config()
 if "selected_model" not in st.session_state:
     st.session_state.selected_model = config.get("last_selected_model", DEFAULT_MODELS[0])
+
+# Инициализация API ключа
 if "api_key" not in st.session_state:
-    st.session_state.api_key = config.get("api_key", "")
+    st.session_state.api_key = ""
+    saved_key = config.get("api_key", "")
+    if saved_key:
+        st.session_state.api_key = saved_key
 
 # --- Боковая панель ---
 with st.sidebar:
@@ -385,9 +491,13 @@ with st.sidebar:
         st.session_state.messages = []
         st.rerun()
     
+    # Обновляем API ключ
     if api_key != st.session_state.api_key:
         st.session_state.api_key = api_key
-        config["api_key"] = api_key
+        if api_key:  # Сохраняем в конфиг только если ключ не пустой
+            config["api_key"] = api_key
+        else:  # Если ключ пустой, удаляем его из конфига
+            config.pop("api_key", None)
         save_config(config)
     
     if selected_model != st.session_state.selected_model:
