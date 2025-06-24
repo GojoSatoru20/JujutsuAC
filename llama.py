@@ -33,377 +33,295 @@ OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 # --- Стили ---
 st.markdown("""
 <style>
-    /* Скрываем верхнюю панель */
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Rajdhani:wght@300;400;500;600&display=swap');
+    
+    /* Hide default elements */
     #MainMenu {visibility: hidden;}
     header {visibility: hidden;}
     footer {visibility: hidden;}
     
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap');
-    
+    /* Global theme */
     .stApp {
-        background: linear-gradient(135deg, #0a0a1f 0%, #1a1a3f 100%);
-        color: #e0e0ff;
+        background: linear-gradient(180deg, #0A0B0F 0%, #111729 100%) !important;
+        color: #E5E5E5;
+        font-family: 'Rajdhani', sans-serif;
+        min-height: 100vh;
+        position: relative;
     }
     
-    .main-title {
-        font-family: 'Orbitron', sans-serif;
-        font-size: 3.5em !important;
-        text-align: center;
-        text-transform: uppercase;
-        background: linear-gradient(120deg, #00ffff, #ff00ff);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 1em !important;
-        letter-spacing: 3px;
-        text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
-        animation: neonPulse 2s infinite;
-    }
-    
-    .stChatMessage {
-        background: rgba(26, 26, 46, 0.8) !important;
-        border-radius: 15px !important;
-        padding: 1.5em !important;
-        margin: 1em 0 !important;
-        border: 1px solid rgba(0, 255, 255, 0.2) !important;
-        box-shadow: 0 4px 15px rgba(0, 255, 255, 0.1) !important;
-        animation: messageAppear 0.5s ease forwards;
-    }
-    
-    .stChatMessage::before {
+    /* Glowing background effect */
+    .stApp::before {
         content: '';
-        position: absolute;
+        position: fixed;
         top: 0;
         left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 20% 20%, rgba(0, 247, 255, 0.05) 0%, transparent 40%),
+            radial-gradient(circle at 80% 80%, rgba(29, 78, 216, 0.05) 0%, transparent 40%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    /* Main title */
+    .main-title {
+        font-family: 'Orbitron', sans-serif !important;
+        font-size: 4em !important;
+        background: linear-gradient(90deg, #00F7FF, #2563EB) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        text-align: center !important;
+        margin: 2rem 0 !important;
+        letter-spacing: 4px !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        position: relative !important;
+        z-index: 1 !important;
+    }
+    
+    .main-title::after {
+        content: attr(data-text);
+        position: absolute;
+        left: 0;
+        top: 0;
         width: 100%;
-        height: 2px;
-        background: linear-gradient(90deg, var(--glow-color, #00ffff), transparent);
-        animation: scanline 2s linear infinite;
+        height: 100%;
+        z-index: -1;
+        filter: blur(15px);
+        opacity: 0.5;
+        background: linear-gradient(90deg, #00F7FF, #2563EB);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
-    
-    .stChatMessage[data-testid="user-message"] {
-        background: rgba(0, 255, 255, 0.1) !important;
-        border-color: rgba(0, 255, 255, 0.3) !important;
-        margin-left: 2em !important;
-        animation-delay: calc(var(--index, 0) * 0.8s);
+
+    /* Sidebar */
+    .stSidebar {
+        background: rgba(17, 23, 41, 0.7) !important;
+        backdrop-filter: blur(10px) !important;
+        border-right: 1px solid rgba(0, 247, 255, 0.1) !important;
     }
-    
-    .stChatMessage[data-testid="assistant-message"] {
-        background: rgba(255, 0, 255, 0.1) !important;
-        border-color: rgba(255, 0, 255, 0.3) !important;
-        margin-right: 2em !important;
-        animation-delay: calc(var(--index, 0) * 0.8s);
+
+    .stSidebar .block-container {
+        padding: 2rem 1rem !important;
     }
-    
+
+    /* System Settings container */
+    .stSidebar .element-container {
+        background: rgba(17, 23, 41, 0.6) !important;
+        border: 1px solid rgba(0, 247, 255, 0.1) !important;
+        border-radius: 12px !important;
+        padding: 1.5rem !important;
+        margin: 0.5rem 0 !important;
+        box-shadow: 
+            0 4px 12px rgba(0, 0, 0, 0.3),
+            0 0 20px rgba(0, 247, 255, 0.05) !important;
+        backdrop-filter: blur(5px) !important;
+    }
+
+    /* Sidebar headings */
+    .stSidebar h2 {
+        font-family: 'Orbitron', sans-serif !important;
+        color: #00F7FF !important;
+        font-size: 1.2em !important;
+        letter-spacing: 2px !important;
+        margin-bottom: 1rem !important;
+        text-transform: uppercase !important;
+    }
+
+    /* Input fields */
+    .stTextInput input, .stSelectbox select {
+        background: rgba(17, 23, 41, 0.6) !important;
+        border: 1px solid rgba(0, 247, 255, 0.2) !important;
+        color: #00F7FF !important;
+        border-radius: 8px !important;
+        font-family: 'Rajdhani', sans-serif !important;
+        padding: 0.75rem !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .stTextInput input:focus, .stSelectbox select:focus {
+        border-color: #00F7FF !important;
+        box-shadow: 0 0 15px rgba(0, 247, 255, 0.2) !important;
+    }
+
+    /* Clear History button */
+    .stButton button {
+        background: linear-gradient(90deg, #111729, #1E293B) !important;
+        border: 1px solid #00F7FF !important;
+        color: #00F7FF !important;
+        font-family: 'Orbitron', sans-serif !important;
+        text-transform: uppercase !important;
+        letter-spacing: 2px !important;
+        padding: 0.75rem !important;
+        width: 100% !important;
+        margin: 0.5rem 0 !important;
+        border-radius: 8px !important;
+        transition: all 0.3s ease !important;
+        position: relative !important;
+        overflow: hidden !important;
+    }
+
+    .stButton button:hover {
+        background: linear-gradient(90deg, #1E293B, #111729) !important;
+        box-shadow: 0 0 20px rgba(0, 247, 255, 0.2) !important;
+    }
+
+    .stButton button::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(45deg, #00F7FF, #2563EB);
+        z-index: -1;
+        filter: blur(10px);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .stButton button:hover::before {
+        opacity: 1;
+    }
+
+    /* Chat messages */
+    .stChatMessage {
+        background: rgba(17, 23, 41, 0.6) !important;
+        border: 1px solid rgba(0, 247, 255, 0.1) !important;
+        border-radius: 12px !important;
+        padding: 1.5rem !important;
+        margin: 1rem 2rem !important;
+        box-shadow: 
+            0 4px 12px rgba(0, 0, 0, 0.3),
+            0 0 20px rgba(0, 247, 255, 0.05) !important;
+        backdrop-filter: blur(5px) !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .stChatMessage:hover {
+        border-color: rgba(0, 247, 255, 0.3) !important;
+        box-shadow: 
+            0 4px 12px rgba(0, 0, 0, 0.3),
+            0 0 30px rgba(0, 247, 255, 0.1) !important;
+    }
+
+    /* Chat input area */
     .stChatInputContainer {
-        animation: rgbBorder 10s linear infinite !important;
-        border-width: 2px !important;
-        background: rgba(13, 13, 37, 0.7) !important;
-        backdrop-filter: blur(10px);
-        padding: 10px !important;
-        margin: 0 auto !important;
+        background: rgba(17, 23, 41, 0.8) !important;
+        backdrop-filter: blur(10px) !important;
+        border-top: 1px solid rgba(0, 247, 255, 0.1) !important;
+        padding: 1.5rem 2rem !important;
         position: fixed !important;
         bottom: 0 !important;
         left: 0 !important;
         right: 0 !important;
         z-index: 1000 !important;
     }
-    
-    .stChatInputContainer > div {
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    
+
     .stChatInputContainer textarea {
-        min-height: 40px !important;
-        padding: 8px 12px !important;
-        background: rgba(13, 13, 37, 0.7) !important;
-        color: rgb(200, 200, 255) !important;
-        border-radius: 10px !important;
-        margin: 0 !important;
+        background: rgba(17, 23, 41, 0.6) !important;
+        border: 1px solid rgba(0, 247, 255, 0.2) !important;
+        color: #E5E5E5 !important;
+        border-radius: 40px !important;
+        font-family: 'Rajdhani', sans-serif !important;
+        padding: 1rem 1.5rem !important;
+        min-height: 45px !important;
+        max-height: 45px !important;
+        font-size: 1rem !important;
+        letter-spacing: 0.5px !important;
+        transition: all 0.3s ease !important;
     }
-    
-    .stChatInputContainer button {
-        background: linear-gradient(90deg, #00ffff, #ff00ff) !important;
-        color: #0a0a1f !important;
-        border: none !important;
+
+    .stChatInputContainer textarea:focus {
+        border-color: #00F7FF !important;
+        box-shadow: 0 0 20px rgba(0, 247, 255, 0.2) !important;
+    }
+
+    /* Neural Link Active status */
+    .connection-status {
+        background: rgba(17, 23, 41, 0.8) !important;
+        backdrop-filter: blur(5px) !important;
+        border: 1px solid rgba(0, 247, 255, 0.2) !important;
+        color: #00F7FF !important;
         font-family: 'Orbitron', sans-serif !important;
-        font-weight: bold !important;
         text-transform: uppercase !important;
-        transition: all 0.3s ease !important;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .stChatInputContainer button:hover {
-        transform: translateY(-2px) scale(1.05) !important;
-        box-shadow: 0 5px 20px rgba(0, 255, 255, 0.4) !important;
-    }
-    
-    .stChatInputContainer button::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-        transform: rotate(45deg);
-        animation: buttonGlow 2s linear infinite;
-    }
-    
-    @keyframes buttonGlow {
-        0% { transform: rotate(45deg) translateX(-100%); }
-        100% { transform: rotate(45deg) translateX(100%); }
-    }
-    
-    .avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: 'Orbitron', sans-serif;
-        font-weight: bold;
-        font-size: 1.2em;
-        margin-right: 1em;
-        color: #0a0a1f;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .avatar:hover {
-        transform: scale(1.1) rotate(5deg);
-    }
-    
-    .avatar::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-        transform: rotate(45deg);
-        animation: avatarGlow 2s linear infinite;
-    }
-    
-    @keyframes avatarGlow {
-        0% { transform: rotate(45deg) translateX(-100%); }
-        100% { transform: rotate(45deg) translateX(100%); }
-    }
-    
-    .connection-status {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 10px 20px;
-        background: rgba(26, 26, 46, 0.8);
-        border-radius: 10px;
-        border: 1px solid #00ffff;
-        color: #00ffff;
-        font-family: 'Orbitron', sans-serif;
-        font-size: 0.8em;
-    }
-    
-    /* Анимации */
-    @keyframes neonPulse {
-        0% { opacity: 1; }
-        50% { opacity: 0.8; }
-        100% { opacity: 1; }
-    }
-    
-    @keyframes messageAppear {
-        0% {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        100% {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    @keyframes scanline {
-        0% { transform: translateX(-100%); }
-        100% { transform: translateX(100%); }
-    }
-    
-    @keyframes glow {
-        0% { box-shadow: 0 0 5px rgba(0, 255, 255, 0.2); }
-        50% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.4); }
-        100% { box-shadow: 0 0 5px rgba(0, 255, 255, 0.2); }
-    }
-    
-    /* Применение анимаций */
-    .stChatMessage {
-        position: relative;
-        overflow: hidden;
-        transition: all 0.3s ease;
-    }
-    
-    .stChatMessage:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0, 255, 255, 0.2) !important;
-    }
-    
-    /* Эффект печати */
-    .typing-effect {
-        border-right: 2px solid var(--glow-color, #00ffff);
-        animation: blink 1s step-end infinite;
-        white-space: pre-wrap;
-    }
-    
-    @keyframes blink {
-        0%, 100% { border-color: transparent; }
-        50% { border-color: var(--glow-color, #00ffff); }
+        letter-spacing: 2px !important;
+        padding: 0.5rem 1rem !important;
+        border-radius: 8px !important;
+        position: fixed !important;
+        top: 1rem !important;
+        right: 1rem !important;
+        z-index: 1000 !important;
+        animation: pulse 2s infinite !important;
     }
 
-    /* Базовые стили для всех сообщений */
-    .stChatMessage {
-        opacity: 0;
-        animation: messageAppear 0.5s ease forwards;
-        animation-play-state: paused;
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(0, 247, 255, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(0, 247, 255, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(0, 247, 255, 0); }
     }
 
-    /* Мгновенное появление первого сообщения */
-    .stChatMessage:first-of-type {
-        opacity: 1 !important;
-        animation: none !important;
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
     }
 
-    /* Анимация появления */
-    @keyframes messageAppear {
-        0% {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        100% {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    ::-webkit-scrollbar-track {
+        background: rgba(17, 23, 41, 0.3);
     }
 
-    /* Стили для сообщений пользователя */
-    [data-testid="user-message"] {
-        background: rgba(0, 255, 255, 0.1) !important;
-        border-color: rgba(0, 255, 255, 0.3) !important;
-        margin-left: 2em !important;
-        animation-delay: calc(var(--index, 0) * 0.8s);
-        animation-play-state: running;
+    ::-webkit-scrollbar-thumb {
+        background: rgba(0, 247, 255, 0.2);
+        border-radius: 3px;
     }
 
-    /* Стили для сообщений ассистента */
-    [data-testid="assistant-message"] {
-        background: rgba(255, 0, 255, 0.1) !important;
-        border-color: rgba(255, 0, 255, 0.3) !important;
-        margin-right: 2em !important;
-        animation-delay: calc(var(--index, 0) * 0.8s);
-        animation-play-state: running;
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 247, 255, 0.4);
     }
 
-    /* Hover эффекты */
-    .stChatMessage:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0, 255, 255, 0.2) !important;
-        transition: all 0.3s ease;
-    }
-
-    /* Динамические задержки для анимации */
-    .stChatMessage:nth-child(1) { --index: 0; animation-play-state: running; }
-    .stChatMessage:nth-child(2) { --index: 1; animation-play-state: running; }
-    .stChatMessage:nth-child(3) { --index: 2; animation-play-state: running; }
-    .stChatMessage:nth-child(4) { --index: 3; animation-play-state: running; }
-    .stChatMessage:nth-child(5) { --index: 4; animation-play-state: running; }
-    .stChatMessage:nth-child(n+6) { --index: 5; animation-play-state: running; }
-
-    /* Сброс анимации при добавлении новых сообщений */
-    .stChatMessage:not(:first-of-type) {
-        animation: none;
-        animation: messageAppear 0.5s ease forwards;
-        animation-play-state: running;
-    }
-
-    /* RGB анимации */
-    @keyframes rgbBorder {
-        0% { border-color: rgba(255, 0, 0, 0.3); box-shadow: 0 0 15px rgba(255, 0, 0, 0.2); }
-        33% { border-color: rgba(0, 255, 0, 0.3); box-shadow: 0 0 15px rgba(0, 255, 0, 0.2); }
-        66% { border-color: rgba(0, 0, 255, 0.3); box-shadow: 0 0 15px rgba(0, 0, 255, 0.2); }
-        100% { border-color: rgba(255, 0, 0, 0.3); box-shadow: 0 0 15px rgba(255, 0, 0, 0.2); }
-    }
-
-    @keyframes rgbText {
-        0% { color: rgb(255, 0, 255); }
-        25% { color: rgb(255, 0, 0); }
-        50% { color: rgb(0, 255, 255); }
-        75% { color: rgb(0, 255, 0); }
-        100% { color: rgb(255, 0, 255); }
-    }
-
-    @keyframes rgbGlow {
-        0% { text-shadow: 0 0 10px rgba(255, 0, 255, 0.7); }
-        25% { text-shadow: 0 0 10px rgba(255, 0, 0, 0.7); }
-        50% { text-shadow: 0 0 10px rgba(0, 255, 255, 0.7); }
-        75% { text-shadow: 0 0 10px rgba(0, 255, 0, 0.7); }
-        100% { text-shadow: 0 0 10px rgba(255, 0, 255, 0.7); }
-    }
-
-    /* Применяем RGB-эффекты */
-    .main-title {
-        animation: rgbText 10s linear infinite, rgbGlow 10s linear infinite !important;
-    }
-
-    .stChatInputContainer {
-        animation: rgbBorder 10s linear infinite !important;
-        border-width: 2px !important;
-        background: rgba(13, 13, 37, 0.7) !important;
-        backdrop-filter: blur(10px);
-    }
-
-    button {
-        background: rgba(13, 13, 37, 0.7) !important;
-        border: 2px solid transparent !important;
-        animation: rgbBorder 10s linear infinite !important;
-        transition: all 0.3s ease !important;
-    }
-
-    button:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 5px 15px rgba(255, 0, 255, 0.3) !important;
-    }
-
-    .connection-status {
-        animation: rgbText 10s linear infinite !important;
-        background: rgba(13, 13, 37, 0.7) !important;
-        backdrop-filter: blur(10px);
-        border: 2px solid transparent;
-    }
-
-    /* Добавляем отступ для контента, чтобы он не перекрывался с полем ввода */
+    /* Main content area */
     .main .block-container {
-        padding-bottom: 80px !important;
+        padding-bottom: 120px !important;
     }
 
-    /* Стили для автофокуса */
-    textarea[data-testid="stChatInput"] {
-        opacity: 1 !important;
-        pointer-events: auto !important;
+    /* Additional elements */
+    .stAlert, .stInfo, .stError, .stWarning, .stSuccess {
+        background: rgba(17, 23, 41, 0.6) !important;
+        backdrop-filter: blur(5px) !important;
+        border: 1px solid rgba(0, 247, 255, 0.1) !important;
+        color: #E5E5E5 !important;
+        border-radius: 8px !important;
+    }
+
+    /* Avatar styling */
+    .avatar {
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 8px !important;
+        background: rgba(17, 23, 41, 0.8) !important;
+        border: 1px solid rgba(0, 247, 255, 0.2) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-family: 'Orbitron', sans-serif !important;
+        color: #00F7FF !important;
+        font-size: 1.2em !important;
+        box-shadow: 0 0 15px rgba(0, 247, 255, 0.1) !important;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# --- Заголовок ---
+# --- Заголовок и статус ---
 st.markdown("""
-<h1 class="main-title">NEURAL NEXUS</h1>
-<div style="text-align: center; margin-bottom: 2em;">
-    <p style="color: #00ffff; font-size: 1.2em; font-family: 'Orbitron', sans-serif; letter-spacing: 2px;">
+<div style="text-align: center; margin-bottom: 2rem;">
+    <h1 class="main-title" data-text="NEURAL NEXUS">NEURAL NEXUS</h1>
+    <p style="color: #00F7FF; font-family: 'Orbitron', sans-serif; letter-spacing: 2px; font-size: 1.2em; margin-top: -1rem;">
         QUANTUM PROCESSING • NEURAL LINK ESTABLISHED
     </p>
 </div>
-<div class="connection-status">
-    ◉ NEURAL LINK ACTIVE
-</div>
+<div class="connection-status">◉ NEURAL LINK ACTIVE</div>
 """, unsafe_allow_html=True)
 
 # --- Функции ---
